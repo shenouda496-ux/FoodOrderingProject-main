@@ -37,29 +37,60 @@
     </div>
   </main>
 
-  <script src="main.js"></script>
   <script>
-    document.getElementById('review-form').addEventListener('submit', function(event) {
+    // إرسال التقييم الجديد
+    document.getElementById('review-form').addEventListener('submit', async function(event) {
       event.preventDefault();
-      
-      const dishName = document.getElementById('dish-name').value;
-      const rating = document.getElementById('rating').value;
+
+      const rating = parseInt(document.getElementById('rating').value);
       const review = document.getElementById('review').value;
 
-      // هنا يمكنك استخدام API لتخزين المراجعة
-      alert(`Submitted Review: ${dishName}, Rating: ${rating}, Review: ${review}`);
+      try {
+        const res = await fetch('/api/ratings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: 1,   // مؤقتًا ثابت
+            dishId: 1,   // مؤقتًا ثابت
+            rating: rating,
+            comment: review
+          })
+        });
 
-      // إظهار المراجعة الجديدة في القائمة
-      const reviewItem = document.createElement('div');
-      reviewItem.innerHTML = `<strong>${dishName}</strong> (${rating} stars): <p>${review}</p>`;
-      document.getElementById('reviews-list').appendChild(reviewItem);
+        const data = await res.json();
+        console.log(data); // مهم جدًا للتأكد من الرد
+        alert(data.message);
 
-      // إعادة تعيين النموذج
-      document.getElementById('review-form').reset();
+        // إظهار المراجعة الجديدة في القائمة
+        const reviewItem = document.createElement('div');
+        reviewItem.innerHTML = `<strong>Rating:</strong> ${rating} ⭐<br><strong>Review:</strong> ${review}`;
+        document.getElementById('reviews-list').appendChild(reviewItem);
+
+        // إعادة تعيين النموذج
+        document.getElementById('review-form').reset();
+      } catch (err) {
+        alert('❌ حصل خطأ في إرسال التقييم');
+        console.error(err);
+      }
     });
 
-    // يمكنك هنا جلب المراجعات السابقة من الـ API
-    // fetch('/api/reviews').then(response => { ... });
+    // تحميل التقييمات السابقة من الـ API
+    async function loadReviews() {
+      try {
+        const res = await fetch('/api/ratings');
+        const reviews = await res.json();
+        const list = document.getElementById('reviews-list');
+        list.innerHTML = '';
+        reviews.forEach(r => {
+          const item = document.createElement('div');
+          item.innerHTML = `<strong>Rating:</strong> ${r.rating} ⭐<br><strong>Review:</strong> ${r.review}`;
+          list.appendChild(item);
+        });
+      } catch (err) {
+        console.error('❌ حصل خطأ في تحميل التقييمات', err);
+      }
+    }
+    loadReviews();
   </script>
 </body>
 </html>

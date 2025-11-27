@@ -1,9 +1,10 @@
-const express = require('express');
-const router = express.Router();
 
-// مؤقتًا عشان السيرفر يشتغل
-router.get('/', (req, res) => {
-    res.send('Admin route works!');
-});
+
+
+const express = require("express");
+const router = express.Router();
+const AdminController = require("../controller/admin.controller");
+
+router.get("/", AdminController.getAll);
 
 module.exports = router;

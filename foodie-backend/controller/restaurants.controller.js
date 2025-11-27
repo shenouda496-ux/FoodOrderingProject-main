@@ -1,5 +1,14 @@
-module.exports = {
-    getAll: (req, res) => {
-        res.json({ message: "Restaurants controller works!" });
-    }
+
+
+
+
+const sql = require('mssql/msnodesqlv8');
+
+exports.getAll = async (req, res) => {
+  try {
+    const result = await sql.query`SELECT * FROM restaurants`;
+    res.json(result.recordset);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };

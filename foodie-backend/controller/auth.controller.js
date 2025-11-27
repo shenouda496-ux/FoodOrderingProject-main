@@ -1,22 +1,27 @@
-const authService = require('../services/auth.service');
-module.exports = {
-  
-  register: async (req, res) => {
-    try {
-      const result = await AuthService.register(req.body);
-      res.status(201).json(result);
-    } catch (err) {
-      res.status(400).json({ error: err.message });
-    }
-  },
 
-  login: async (req, res) => {
-    try {
-      const result = await AuthService.login(req.body);
-      res.status(200).json(result);
-    } catch (err) {
-      res.status(401).json({ error: err.message });
-    }
+
+const sql = require('mssql/msnodesqlv8');
+
+exports.register = async (req, res) => {
+  const { username, password } = req.body;
+  try {
+    await sql.query`INSERT INTO users (Username, Password) VALUES (${username}, ${password})`;
+    res.json({ message: '✅ User registered successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
+};
 
+exports.login = async (req, res) => {
+  const { username, password } = req.body;
+  try {
+    const result = await sql.query`SELECT * FROM users WHERE Username=${username} AND Password=${password}`;
+    if (result.recordset.length > 0) {
+      res.json({ message: '✅ Login successful' });
+    } else {
+      res.status(401).json({ message: '❌ Invalid credentials' });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };

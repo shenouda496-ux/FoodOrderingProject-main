@@ -1,5 +1,13 @@
-module.exports = {
-    getAll: (req, res) => {
-        res.json({ message: "Tracking controller works!" });
-    }
+
+
+
+const sql = require('mssql/msnodesqlv8');
+
+exports.getAll = async (req, res) => {
+  try {
+    const result = await sql.query`SELECT * FROM tracking`;
+    res.json(result.recordset);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };

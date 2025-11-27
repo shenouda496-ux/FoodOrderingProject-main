@@ -19,16 +19,11 @@
   </nav>
 
   <main class="container" style="display:flex;align-items:center;justify-content:center;min-height:70vh;">
-    <section class="card" 
-      style="max-width:460px;width:100%;padding:28px;border-radius:var(--radius);box-shadow:var(--shadow);">
-
+    <section class="card" style="max-width:460px;width:100%;padding:28px;border-radius:var(--radius);box-shadow:var(--shadow);">
       <h2 style="margin:0 0 12px;">Create an Account</h2>
-      <p style="color:var(--muted);margin:0 0 18px;">
-        Sign up to start ordering your favorite meals.
-      </p>
+      <p style="color:var(--muted);margin:0 0 18px;">Sign up to start ordering your favorite meals.</p>
 
-      <form id="register-form" onsubmit="return false;">
-
+      <form id="register-form">
         <label style="display:block;margin-bottom:8px;font-weight:600">Full Name</label>
         <input id="fullname" type="text" placeholder="Enter your full name" required 
           style="width:100%;padding:12px;border-radius:10px;border:1px solid #eee;margin-bottom:12px" />
@@ -45,7 +40,7 @@
         <input id="password" type="password" placeholder="••••••••" required 
           style="width:100%;padding:12px;border-radius:10px;border:1px solid #eee;margin-bottom:16px" />
 
-        <button id="reg-btn" class="btn" style="width:100%;">Create Account</button>
+        <button type="submit" class="btn" style="width:100%;">Create Account</button>
       </form>
 
       <div style="text-align:center;margin-top:12px;color:var(--muted);font-size:14px;">
@@ -55,10 +50,10 @@
     </section>
   </main>
 
-  <script src="main.js"></script>
   <script>
-    // UI-only register handler — replace with real API call
-    document.getElementById('reg-btn').addEventListener('click', () => {
+    document.getElementById('register-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
       const name = document.getElementById('fullname').value.trim();
       const email = document.getElementById('email').value.trim();
       const phone = document.getElementById('phone').value.trim();
@@ -69,8 +64,31 @@
         return;
       }
 
-      alert('Registration simulated — replace with API.');
-      window.location.href = 'login.html';
+      try {
+        const res = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fullname: name,
+            email: email,
+            phone: phone,
+            password: pass
+          })
+        });
+
+        const data = await res.json();
+        console.log('Register response:', data);
+
+        if(res.ok){
+          alert(data.message || '✅ Registered successfully');
+          window.location.href = 'login.html';
+        } else {
+          alert(data.message || '❌ Registration failed');
+        }
+      } catch (err) {
+        console.error('❌ Error in register:', err);
+        alert('❌ حصل خطأ أثناء التسجيل');
+      }
     });
   </script>
 </body>

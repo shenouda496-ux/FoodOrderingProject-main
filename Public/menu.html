@@ -11,52 +11,38 @@
   <nav class="navbar">
     <div class="logo">Foodie</div>
     <div class="nav-links">
-      <a href="index.html">Home</a>
+      <a href="menu.html">Menu</a>
       <a class="nav-cart-btn" href="cart.html">Cart <span id="cart-count">0</span></a>
     </div>
   </nav>
 
   <main class="container">
-    <!-- Restaurant header (data-bind) -->
-    <section class="restaurant-header card" style="display:flex;gap:16px;align-items:center;padding:18px;margin-bottom:18px;">
+    <section id="restaurant-list" style="margin-bottom:24px;"></section>
+
+    <section class="restaurant-header card" id="restaurant-header" style="display:none;gap:16px;align-items:center;padding:18px;margin-bottom:18px;">
       <img src="assets/placeholder-restaurant.jpg" alt="restaurant" style="width:120px;height:120px;object-fit:cover;border-radius:12px" />
       <div>
-        <h2 data-bind="restaurant.name" style="margin:0;">Restaurant Name</h2>
-        <p data-bind="restaurant.category" style="color:var(--muted);margin:6px 0 8px;">Cuisine — Delivery</p>
-        <div style="color:var(--muted);font-size:14px;">Delivery fee: <span data-bind="restaurant.delivery">—</span> EGP</div>
+        <h2 id="restaurant-name" style="margin:0;">Restaurant Name</h2>
+        <p id="restaurant-category" style="color:var(--muted);margin:6px 0 8px;">Cuisine — Delivery</p>
+        <div style="color:var(--muted);font-size:14px;">Delivery fee: <span id="restaurant-delivery">—</span> EGP</div>
       </div>
     </section>
 
-    <!-- Filters / search -->
-    <section style="display:flex;gap:12px;margin-bottom:12px;align-items:center">
+     <section style="display:flex;gap:12px;margin-bottom:12px;align-items:center">
       <input id="dish-search" placeholder="Search the menu..." style="flex:1;padding:12px;border-radius:12px;border:1px solid #eee" />
       <select id="sort" style="padding:12px;border-radius:12px;border:1px solid #eee">
         <option value="">Sort</option>
         <option value="price-asc">Price — ascending</option>
         <option value="price-desc">Price — descending</option>
+        <option value="category">Category</option>
       </select>
     </section>
 
-    <!-- dishes grid -->
-    <section id="dishes-grid" class="grid">
-      <!-- Empty card structure — clone/create dynamically when binding -->
-      <article class="dish-card">
-        <img src="assets/placeholder-dish.jpg" alt="dish" />
-        <h3 style="margin:10px 8px 4px;">Dish name</h3>
-        <p style="margin:0 8px 8px;color:var(--muted);">Short description — ingredients</p>
-        <div class="price-add">
-          <div class="price">0 EGP</div>
-          <button class="btn">Add</button>
-        </div>
-      </article>
-    </section>
+    <section id="dishes-grid"></section>
 
-    <!-- floating mini cart (UI only) -->
     <aside id="mini-cart" style="position:fixed;bottom:18px;left:18px;width:320px;background:var(--card);padding:12px;border-radius:12px;box-shadow:var(--shadow);display:none;">
       <h4 style="margin:0 0 8px">Cart</h4>
-      <div id="mini-cart-items">
-        <!-- Cart items will bind here -->
-      </div>
+      <div id="mini-cart-items"></div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
         <strong id="mini-total">0 EGP</strong>
         <button class="btn" onclick="location.href='cart.html'">Checkout</button>
@@ -64,23 +50,138 @@
     </aside>
   </main>
 
-  <script src="main.js"></script>
-  <script>
-    // UI-only behavior for menu page
-    document.addEventListener('DOMContentLoaded', () => {
-      const rid = UI.getRestaurantId(); // hook for later
-      // Add behavior to "Add" buttons (UI only): show mini-cart
-      document.querySelectorAll('.dish-card .btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const mini = document.getElementById('mini-cart');
-          mini.style.display = 'block';
-          UI.updateCartBadge();
-        });
+   <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const restaurantId = urlParams.get('rid');
+
+      const restaurantList = document.getElementById('restaurant-list');
+      const restaurantHeader = document.getElementById('restaurant-header');
+      const restaurantName = document.getElementById('restaurant-name');
+      const restaurantCategory = document.getElementById('restaurant-category');
+      const restaurantDelivery = document.getElementById('restaurant-delivery');
+
+      const dishesGrid = document.getElementById('dishes-grid');
+      const searchInput = document.getElementById('dish-search');
+      const sortSelect = document.getElementById('sort');
+
+      let allDishes = [];
+
+      if (!restaurantId) {
+        // عرض قائمة المطاعم
+        try {
+          const res = await fetch('/api/restaurants');
+          const restaurants = await res.json();
+
+          restaurantList.innerHTML = '<h2>اختر المطعم:</h2>';
+          restaurants.forEach(r => {
+            const btn = document.createElement('button');
+            btn.textContent = r.name;
+            btn.className = 'btn';
+            btn.style = 'margin:6px;';
+            btn.onclick = () => {
+              window.location.href = `menu.html?rid=${r.restaurant_id}`;
+            };
+            restaurantList.appendChild(btn);
+          });
+        } catch (err) {
+          console.error('❌ Error loading restaurants:', err);
+          alert('❌ حصل خطأ أثناء تحميل المطاعم');
+        }
+        return;
+      }
+
+      async function loadMenu() {
+        try {
+          const res = await fetch(`/api/menu/${restaurantId}`);
+          const data = await res.json();
+          allDishes = data;
+          renderMenu(data, false);
+          restaurantHeader.style.display = 'flex';
+          restaurantName.textContent = `Restaurant #${restaurantId}`;
+          restaurantCategory.textContent = 'Cuisine — Delivery';
+          restaurantDelivery.textContent = '—';
+        } catch (err) {
+          console.error('❌ Error loading menu:', err);
+          alert('❌ حصل خطأ أثناء تحميل قائمة الطعام');
+        }
+      }
+
+      function renderMenu(dishes, groupByCategory = false) {
+        dishesGrid.innerHTML = '';
+
+        if (groupByCategory) {
+          const grouped = {};
+          dishes.forEach(dish => {
+            const key = dish.category || 'Other';
+            if (!grouped[key]) grouped[key] = [];
+            grouped[key].push(dish);
+          });
+
+          Object.keys(grouped).forEach(category => {
+            const section = document.createElement('div');
+            section.className = 'category-section';
+            section.innerHTML = `<h2 style="margin:16px 0;">${category}</h2>`;
+
+            grouped[category].forEach(dish => {
+              const card = document.createElement('article');
+              card.className = 'dish-card';
+              card.innerHTML = `
+                <img src="/images/${dish.image}" alt="${dish.name}" />
+                <h3 style="margin:10px 8px 4px;">${dish.name}</h3>
+                <p style="margin:0 8px 8px;color:var(--muted);">${dish.description}</p>
+                <div class="price-add">
+                  <div class="price">${dish.price} EGP</div>
+                  <button class="btn">Add</button>
+                </div>
+              `;
+              section.appendChild(card);
+            });
+
+            dishesGrid.appendChild(section);
+          });
+        } else {
+          dishes.forEach(dish => {
+            const card = document.createElement('article');
+            card.className = 'dish-card';
+            card.innerHTML = `
+              <img src="/images/${dish.image}" alt="${dish.name}" />
+              <h3 style="margin:10px 8px 4px;">${dish.name}</h3>
+              <p style="margin:0 8px 8px;color:var(--muted);">${dish.description}</p>
+              <div class="price-add">
+                <div class="price">${dish.price} EGP</div>
+                <button class="btn">Add</button>
+              </div>
+            `;
+            dishesGrid.appendChild(card);
+          });
+        }
+      }
+
+      searchInput.addEventListener('input', () => {
+        const term = searchInput.value.toLowerCase();
+        const filtered = allDishes.filter(d => (d.name || '').toLowerCase().includes(term));
+        renderMenu(filtered, false);
       });
+
+      sortSelect.addEventListener('change', () => {
+        const value = sortSelect.value;
+
+        if (value === 'price-asc') {
+          const sorted = [...allDishes].sort((a, b) => a.price - b.price);
+          renderMenu(sorted, false);
+        } else if (value === 'price-desc') {
+          const sorted = [...allDishes].sort((a, b) => b.price - a.price);
+          renderMenu(sorted, false);
+        } else if (value === 'category') {
+          renderMenu(allDishes, true);
+        } else {
+          renderMenu(allDishes, false);
+        }
+      });
+
+      loadMenu();
     });
   </script>
-
-
-
-</body>
+ </body>
 </html>

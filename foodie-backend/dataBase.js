@@ -4,7 +4,7 @@ const sql = require("mssql");
 const config = {
     user: "",           // عادة sa
     password: "",       
-    server: "./SQLEXPRESS",             // أو اسم السيرفر
+    server: ".//SQLEXPRESS",             // أو اسم السيرفر
     database: "Food_Ordering_Website",
     options: {
         encrypt: false,             // لو على Local SQL Server ممكن false

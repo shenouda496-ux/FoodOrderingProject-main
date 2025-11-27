@@ -2,8 +2,8 @@ const sql = require('mssql/msnodesqlv8');
 
 exports.getAll = async (req, res) => {
   try {
-    const result = await sql.query`SELECT * FROM dishes`;
-    res.json(result.recordset); // بيرجع كل الأطباق كـ JSON
+    const result = await sql.query`SELECT * FROM categories`;
+    res.json(result.recordset);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
