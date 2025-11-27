@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin Login</title>
+  <link rel="stylesheet" href="variable.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo">Foodie - Admin</div>
+    <div class="nav-links">
+      <a href="index.html" class="active">Home</a>
+  </nav>
+
+  <main class="container" style="display:flex;align-items:center;justify-content:center;min-height:70vh;">
+    <section class="card" style="max-width:420px;width:100%;padding:28px;border-radius:var(--radius);box-shadow:var(--shadow);">
+      <h2 style="margin:0 0 12px;">Admin Login</h2>
+      <form id="admin-login-form" onsubmit="return false;">
+        <label style="display:block;margin-bottom:8px;font-weight:600">Email</label>
+        <input id="admin-email" type="email" placeholder="admin@example.com" required style="width:100%;padding:12px;border-radius:10px;border:1px solid #eee;margin-bottom:12px" />
+
+        <label style="display:block;margin-bottom:8px;font-weight:600">Password</label>
+        <input id="admin-password" type="password" placeholder="••••••••" required style="width:100%;padding:12px;border-radius:10px;border:1px solid #eee;margin-bottom:16px" />
+
+        <button id="admin-login-btn" class="btn" style="width:100%;">Sign in</button>
+      </form>
+    </section>
+  </main>
+
+  <script src="main.js"></script>
+  <script>

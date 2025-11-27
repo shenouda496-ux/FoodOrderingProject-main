@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Foodie — Register</title>
+  <link rel="stylesheet" href="variable.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="logo">Foodie</div>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a class="nav-cart-btn" href="cart.html">Cart <span id="cart-count">0</span></a>
+      <a href="login.html">Login</a>
+    </div>
+  </nav>
+
+  <main class="container" style="display:flex;align-items:center;justify-content:center;min-height:70vh;">
+    <section class="card" 
+      style="max-width:460px;width:100%;padding:28px;border-radius:var(--radius);box-shadow:var(--shadow);">
+
+      <h2 style="margin:0 0 12px;">Create an Account</h2>
+      <p style="color:var(--muted);margin:0 0 18px;">
+        Sign up to start ordering your favorite meals.
+      </p>
+
+      <form id="register-form" onsubmit="return false;">
+
+        <label style="display:block;margin-bottom:8px;font-weight:600">Full Name</label>
+        <input id="fullname" type="text" placeholder="Enter your full name" required 
+          style="width:100%;padding:12px;border-radius:10px;border:1px solid #eee;margin-bottom:12px" />
+
+        <label style="display:block;margin-bottom:8px;font-weight:600">Email</label>
+        <input id="email" type="email" placeholder="you@example.com" required 
+          style="width:100%;padding:12px;border-radius:10px;border:1px solid #eee;margin-bottom:12px" />
+
+        <label style="display:block;margin-bottom:8px;font-weight:600">Phone</label>
+        <input id="phone" type="text" placeholder="01XXXXXXXXX" required 
+          style="width:100%;padding:12px;border-radius:10px;border:1px solid #eee;margin-bottom:12px" />
+
+        <label style="display:block;margin-bottom:8px;font-weight:600">Password</label>
+        <input id="password" type="password" placeholder="••••••••" required 
+          style="width:100%;padding:12px;border-radius:10px;border:1px solid #eee;margin-bottom:16px" />
+
+        <button id="reg-btn" class="btn" style="width:100%;">Create Account</button>
+      </form>
+
+      <div style="text-align:center;margin-top:12px;color:var(--muted);font-size:14px;">
+        Already have an account? 
+        <a href="login.html" style="color:var(--primary);font-weight:700;text-decoration:none">Sign in</a>
+      </div>
+    </section>
+  </main>
+
+  <script src="main.js"></script>
+  <script>
+    // UI-only register handler — replace with real API call
+    document.getElementById('reg-btn').addEventListener('click', () => {
+      const name = document.getElementById('fullname').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const pass = document.getElementById('password').value.trim();
+
+      if(!name || !email || !phone || !pass) {
+        alert('Please complete all fields.');
+        return;
+      }
+
+      alert('Registration simulated — replace with API.');
+      window.location.href = 'login.html';
+    });
+  </script>
+</body>
+</html>

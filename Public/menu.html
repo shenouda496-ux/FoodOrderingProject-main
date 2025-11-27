@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Foodie — Menu</title>
+  <link rel="stylesheet" href="variable.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo">Foodie</div>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a class="nav-cart-btn" href="cart.html">Cart <span id="cart-count">0</span></a>
+    </div>
+  </nav>
+
+  <main class="container">
+    <!-- Restaurant header (data-bind) -->
+    <section class="restaurant-header card" style="display:flex;gap:16px;align-items:center;padding:18px;margin-bottom:18px;">
+      <img src="assets/placeholder-restaurant.jpg" alt="restaurant" style="width:120px;height:120px;object-fit:cover;border-radius:12px" />
+      <div>
+        <h2 data-bind="restaurant.name" style="margin:0;">Restaurant Name</h2>
+        <p data-bind="restaurant.category" style="color:var(--muted);margin:6px 0 8px;">Cuisine — Delivery</p>
+        <div style="color:var(--muted);font-size:14px;">Delivery fee: <span data-bind="restaurant.delivery">—</span> EGP</div>
+      </div>
+    </section>
+
+    <!-- Filters / search -->
+    <section style="display:flex;gap:12px;margin-bottom:12px;align-items:center">
+      <input id="dish-search" placeholder="Search the menu..." style="flex:1;padding:12px;border-radius:12px;border:1px solid #eee" />
+      <select id="sort" style="padding:12px;border-radius:12px;border:1px solid #eee">
+        <option value="">Sort</option>
+        <option value="price-asc">Price — ascending</option>
+        <option value="price-desc">Price — descending</option>
+      </select>
+    </section>
+
+    <!-- dishes grid -->
+    <section id="dishes-grid" class="grid">
+      <!-- Empty card structure — clone/create dynamically when binding -->
+      <article class="dish-card">
+        <img src="assets/placeholder-dish.jpg" alt="dish" />
+        <h3 style="margin:10px 8px 4px;">Dish name</h3>
+        <p style="margin:0 8px 8px;color:var(--muted);">Short description — ingredients</p>
+        <div class="price-add">
+          <div class="price">0 EGP</div>
+          <button class="btn">Add</button>
+        </div>
+      </article>
+    </section>
+
+    <!-- floating mini cart (UI only) -->
+    <aside id="mini-cart" style="position:fixed;bottom:18px;left:18px;width:320px;background:var(--card);padding:12px;border-radius:12px;box-shadow:var(--shadow);display:none;">
+      <h4 style="margin:0 0 8px">Cart</h4>
+      <div id="mini-cart-items">
+        <!-- Cart items will bind here -->
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
+        <strong id="mini-total">0 EGP</strong>
+        <button class="btn" onclick="location.href='cart.html'">Checkout</button>
+      </div>
+    </aside>
+  </main>
+
+  <script src="main.js"></script>
+  <script>
+    // UI-only behavior for menu page
+    document.addEventListener('DOMContentLoaded', () => {
+      const rid = UI.getRestaurantId(); // hook for later
+      // Add behavior to "Add" buttons (UI only): show mini-cart
+      document.querySelectorAll('.dish-card .btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const mini = document.getElementById('mini-cart');
+          mini.style.display = 'block';
+          UI.updateCartBadge();
+        });
+      });
+    });
+  </script>
+
+
+
+</body>
+</html>

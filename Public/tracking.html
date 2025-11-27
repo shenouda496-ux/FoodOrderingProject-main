@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Foodie — Tracking</title>
+  <link rel="stylesheet" href="variable.css" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .timeline { display:flex;flex-direction:column;gap:16px; }
+    .track-step { display:flex;gap:12px;align-items:center;padding:12px;border-radius:12px;background:var(--card);box-shadow:var(--shadow); }
+    .track-step .dot { width:14px;height:14px;border-radius:50%;border:3px solid #eee;background:transparent; }
+    .track-step.active { background: linear-gradient(90deg, rgba(255,90,95,0.06), rgba(255,180,64,0.03)); }
+    .track-step.active .dot { background: var(--primary); border-color: transparent; }
+    .track-meta { color:var(--muted); font-size:13px; }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo">Foodie</div>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a class="nav-cart-btn" href="cart.html">Cart <span id="cart-count">0</span></a>
+    </div>
+  </nav>
+
+  <main class="container">
+    <section style="margin-bottom:18px">
+      <h2 style="margin:0 0 6px">Order tracking</h2>
+      <p style="color:var(--muted);margin:0 0 12px">This interface is ready to display real-time order status from an API.</p>
+    </section>
+
+    <section class="card" style="padding:18px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div>
+          <div style="font-weight:800">Order #: <span data-bind="order.id">#—</span></div>
+          <div class="track-meta">Time: <span data-bind="order.time">—</span></div>
+        </div>
+        <div style="text-align:left">
+          <div style="font-weight:700">Contact driver</div>
+          <div class="track-meta">Phone: <a href="tel:">—</a></div>
+        </div>
+      </div>
+
+      <div class="timeline">
+        <div class="track-step" data-step="0">
+          <div class="dot"></div>
+          <div>
+            <div style="font-weight:700">Order received</div>
+            <div class="track-meta">Short note when restaurant accepted the order</div>
+          </div>
+        </div>
+
+        <div class="track-step" data-step="1">
+          <div class="dot"></div>
+          <div>
+            <div style="font-weight:700">Preparing</div>
+            <div class="track-meta">Kitchen is preparing your order</div>
+          </div>
+        </div>
+
+        <div class="track-step" data-step="2">
+          <div class="dot"></div>
+          <div>
+            <div style="font-weight:700">On the way</div>
+            <div class="track-meta">Delivery driver picked up the order</div>
+          </div>
+        </div>
+
+        <div class="track-step" data-step="3">
+          <div class="dot"></div>
+          <div>
+            <div style="font-weight:700">Delivered</div>
+            <div class="track-meta">The order has been delivered</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:18px;text-align:center">
+        <button id="simulate-step" class="btn">Next status (UI only)</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="main.js"></script>
+  <script>
+    // UI-only: simulate stepping through timeline
+    let current = 0;
+    function render() {
+      UI.setTrackingStep(current);
+    }
+    document.getElementById('simulate-step').addEventListener('click', () => {
+      current = Math.min(current + 1, document.querySelectorAll('.track-step').length - 1);
+      render();
+    });
+    document.addEventListener('DOMContentLoaded', render);
+  </script>
+</body>
+</html>

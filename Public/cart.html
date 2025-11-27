@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Foodie — Cart & Checkout</title>
+  <link rel="stylesheet" href="variable.css" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .layout { display:grid; grid-template-columns: 1fr 360px; gap:24px; align-items:start; }
+    @media (max-width:900px){ .layout{ grid-template-columns: 1fr; } .checkout-panel{ order: 2; } }
+    .empty-cart { text-align:center; padding:60px 20px; color:var(--muted); background:var(--card); border-radius:12px; box-shadow:var(--shadow); }
+    .qty-btn { width:32px; height:32px; border-radius:8px; border:none; background:var(--primary); color:#fff; cursor:pointer; }
+    .payment-option { display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;background:var(--card);box-shadow:var(--shadow);cursor:pointer; }
+    .payment-option.selected { border:2px solid rgba(255,90,95,0.12); }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo">Foodie</div>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a class="nav-cart-btn" href="cart.html">Cart <span id="cart-count">0</span></a>
+    </div>
+  </nav>
+
+  <main class="container">
+    <h2 style="margin:0 0 12px">Your Cart</h2>
+
+    <div class="layout">
+      <!-- Left: Cart items -->
+      <section>
+        <div id="cart-items-container">
+          <!-- If empty: show message -->
+          <div class="empty-cart" id="empty-cart-msg" style="display:none">
+            Your cart is empty. Browse restaurants and add items to start ordering.
+          </div>
+
+          <!-- Example cart item template (clone when binding) -->
+          <div class="cart-item" style="display:none" id="cart-item-template">
+            <img src="assets/placeholder-dish.jpg" alt="item" />
+            <div>
+              <h4 class="item-name">Item name</h4>
+              <div class="row" style="margin-top:8px">
+                <div style="display:flex;align-items:center;gap:8px">
+                  <button class="qty-btn btn-decrease">-</button>
+                  <div class="qty">1</div>
+                  <button class="qty-btn btn-increase">+</button>
+                </div>
+                <div style="margin-left:8px;color:var(--muted)">x <span class="unit-price">0</span> EGP</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+              <strong class="item-total">0 EGP</strong>
+              <button class="remove">Remove</button>
+            </div>
+          </div>
+
+          <!-- Real items will be appended here -->
+          <div id="cart-items-list"></div>
+        </div>
+      </section>
+
+      <!-- Right: Checkout summary -->
+      <aside class="checkout-panel" style="background:var(--card);padding:18px;border-radius:12px;box-shadow:var(--shadow);">
+        <h3 style="margin:0 0 8px">Order Summary</h3>
+        <div style="display:flex;justify-content:space-between;color:var(--muted);margin-bottom:8px">
+          <div>Subtotal</div>
+          <div id="subtotal">0 EGP</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;color:var(--muted);margin-bottom:8px">
+          <div>Delivery Fee</div>
+          <div id="delivery-fee">0 EGP</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-weight:800;font-size:18px;margin-bottom:12px">
+          <div>Total</div>
+          <div id="total">0 EGP</div>
+        </div>
+
+        <div style="margin-top:12px">
+          <label style="display:block;margin-bottom:6px;font-weight:600">Delivery Address</label>
+          <input id="address" placeholder="Enter delivery address" style="width:100%;padding:10px;border-radius:10px;border:1px solid #eee;margin-bottom:10px" />
+        </div>
+
+        <div style="margin-top:8px">
+          <label style="display:block;margin-bottom:6px;font-weight:600">Order note</label>
+          <textarea id="order-note" placeholder="Add a note for the restaurant (optional)" style="width:100%;padding:10px;border-radius:10px;border:1px solid #eee;min-height:80px"></textarea>
+        </div>
+
+        <div style="margin-top:12px">
+          <h4 style="margin:0 0 8px">Payment method</h4>
+          <div id="payment-methods" style="display:flex;flex-direction:column;gap:8px">
+            <div class="payment-option selected" data-method="card">
+              <input type="radio" name="pm" checked style="display:none" />
+              <div>Card</div>
+            </div>
+            <div class="payment-option" data-method="cash">
+              <input type="radio" name="pm" style="display:none" />
+              <div>Cash on delivery</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="checkout-box" style="margin-top:14px">
+          <div>
+            <div style="color:var(--muted);font-size:14px">Estimated time</div>
+            <div style="font-weight:800">25-35 min</div>
+          </div>
+          <button id="checkout-btn" class="btn" style="padding:10px 18px">Place order</button>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <script src="main.js"></script>
+  <script>
+    // Cart UI-only implementation: storage + UI rendering (no backend)
+    (function(){
+      const template = document.getElementById('cart-item-template');
+      const list = document.getElementById('cart-items-list');
+      const emptyMsg = document.getElementById('empty-cart-msg');
+
+      function loadCart(){
+        try { return JSON.parse(localStorage.getItem('cart')) || []; }
+        catch(e){ return []; }
+      }
+      function saveCart(c){ localStorage.setItem('cart', JSON.stringify(c)); UI.updateCartBadge(); render(); }
+
+      function formatEGP(n){ return Number(n).toFixed(2) + ' EGP'; }
+
+      function render(){
+        const items = loadCart();
+        list.innerHTML = '';
+        if(items.length === 0){
+          emptyMsg.style.display = 'block';
+        } else {
+          emptyMsg.style.display = 'none';
+          items.forEach(it => {
+            const node = template.cloneNode(true);
+            node.style.display = 'flex';
+            node.removeAttribute('id');
+            node.querySelector('img').src = it.image || 'assets/placeholder-dish.jpg';
+            node.querySelector('.item-name').textContent = it.name || 'Item';
+            node.querySelector('.qty').textContent = it.qty || 1;
+            node.querySelector('.unit-price').textContent = Number(it.price).toFixed(2);
+            node.querySelector('.item-total').textContent = formatEGP((it.price || 0) * (it.qty || 1));
+            node.querySelector('.btn-decrease').addEventListener('click', () => {
+              const c = loadCart();
+              const idx = c.findIndex(x => x.id === it.id);
+              if(idx>=0){
+                c[idx].qty = Math.max(1, (c[idx].qty||1) - 1);
+                saveCart(c);
+              }
+            });
+            node.querySelector('.btn-increase').addEventListener('click', () => {
+              const c = loadCart();
+              const idx = c.findIndex(x => x.id === it.id);
+              if(idx>=0){
+                c[idx].qty = (c[idx].qty||1) + 1;
+                saveCart(c);
+              }
+            });
+            node.querySelector('.remove').addEventListener('click', () => {
+              const c = loadCart().filter(x => x.id !== it.id);
+              saveCart(c);
+            });
+            list.appendChild(node);
+          });
+        }
+
+        // totals
+        const itemsNow = loadCart();
+        const subtotal = itemsNow.reduce((s,i) => s + (i.price * (i.qty||1)), 0);
+        const delivery = itemsNow.length ? 20 : 0; // UI-only fixed delivery fee
+        const total = subtotal + delivery;
+        document.getElementById('subtotal').textContent = formatEGP(subtotal);
+        document.getElementById('delivery-fee').textContent = formatEGP(delivery);
+        document.getElementById('total').textContent = formatEGP(total);
+      }
+
+      // payment selection UI
+      document.getElementById('payment-methods').addEventListener('click', (e) => {
+        const opt = e.target.closest('.payment-option');
+        if(!opt) return;
+        document.querySelectorAll('.payment-option').forEach(x => x.classList.remove('selected'));
+        opt.classList.add('selected');
+      });
+
+      // checkout button
+      document.getElementById('checkout-btn').addEventListener('click', () => {
+        const itemsNow = loadCart();
+        if(itemsNow.length === 0){
+          alert('Your cart is empty.');
+          return;
+        }
+        const address = document.getElementById('address').value.trim();
+        if(!address){
+          alert('Please enter a delivery address.');
+          return;
+        }
+        // UI-only: simulate order placement
+        alert('Order simulated. Replace this with real API call.');
+        localStorage.removeItem('cart');
+        UI.updateCartBadge();
+        render();
+        // option: redirect to tracking page with simulated order id
+        window.location.href = 'tracking.html?order_id=sim123';
+      });
+
+      // initial render
+      render();
+    })();
+  </script>
+</body>
+</html>

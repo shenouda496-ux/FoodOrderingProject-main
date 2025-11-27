@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Foodie — Login</title>
+  <link rel="stylesheet" href="variable.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo">Foodie</div>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a class="nav-cart-btn" href="cart.html">Cart <span id="cart-count">0</span></a>
+    </div>
+  </nav>
+
+  <main class="container" style="display:flex;align-items:center;justify-content:center;min-height:70vh;">
+    <section class="card" style="max-width:420px;width:100%;padding:28px;border-radius:var(--radius);box-shadow:var(--shadow);">
+      <h2 style="margin:0 0 12px;">Sign in</h2>
+      <p style="color:var(--muted);margin:0 0 18px;">Sign in to order, view your orders and track deliveries.</p>
+
+      <form id="login-form" onsubmit="return false;">
+        <label style="display:block;margin-bottom:8px;font-weight:600">Email</label>
+        <input id="email" type="email" placeholder="you@example.com" required style="width:100%;padding:12px;border-radius:10px;border:1px solid #eee;margin-bottom:12px" />
+
+        <label style="display:block;margin-bottom:8px;font-weight:600">Password</label>
+        <input id="password" type="password" placeholder="••••••••" required style="width:100%;padding:12px;border-radius:10px;border:1px solid #eee;margin-bottom:16px" />
+
+        <button id="login-btn" class="btn" style="width:100%;">Sign in</button>
+      </form>
+
+      <div style="text-align:center;margin-top:12px;color:var(--muted);font-size:14px;">
+        Don't have an account? <a href="register.html" style="color:var(--primary);font-weight:700;text-decoration:none">Create one</a>
+      </div>
+    </section>
+  </main>
+
+  <script src="main.js"></script>
+  <script>
+    // placeholder handler: replace with API integration
+    document.getElementById('login-btn').addEventListener('click', () => {
+      const email = document.getElementById('email').value.trim();
+      const pass = document.getElementById('password').value.trim();
+      if(!email || !pass) {
+        alert('Please complete the fields');
+        return;
+      }
+      alert('Sign-in simulated — replace with real API');
+      window.location.href = 'index.html';
+    });
+  </script>
+</body>
+</html>

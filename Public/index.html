@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Foodie - Home</title>
+  <link rel="stylesheet" href="variable.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo">Foodie</div>
+    <div class="nav-links">
+      <a href="index.html" class="active">Home</a>
+      <a class="nav-cart-btn" href="cart.html">Cart <span id="cart-count">0</span></a>
+      <a href="login.html">Login</a>
+      <a href="menu.html">Menu</a>
+      <a href="admin.html">Admin Panel</a>
+      <a href="rating.html">Rating & Review</a>
+      <a href="report.html">RReport</a>
+    </div>
+  </nav>
+
+  <main class="container">
+    <section class="hero">
+      <div>
+        <h2>Order from local restaurants near you</h2>
+        <p>Fast delivery · Real-time tracking · Support local businesses</p>
+      </div>
+      <img src="assets/hero-food.jpg" alt="food" class="hero-img"/>
+    </section>
+
+    <section id="restaurants" class="restaurants container">
+      <h3>
+        <button id="show-restaurants" class="fancy-btn">Restaurants</button>
+      </h3>
+
+      <div id="rests" class="grid" style="display:none">
+        <!-- empty cards for binding -->
+        <div class="restaurant-card">
+          <img src="assets/placeholder-restaurant.jpg" class="img" />
+          <h2>Restaurant Name</h2>
+          <p class="desc">Short description</p>
+          <small>Location</small>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="main.js"></script>
+  <script>
+    document.getElementById('show-restaurants')?.addEventListener('click', () => {
+      const rests = document.getElementById('rests');
+      rests.style.display = 'grid';
+      rests.scrollIntoView({behavior: 'smooth'});
+    });
+  </script>
+</body>
+</html>
